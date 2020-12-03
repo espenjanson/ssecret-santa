@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Santa } from '../components/santa'
@@ -37,6 +38,7 @@ export default function Home() {
   const [result, setResult] = useState('')
   const [checking, setChecking] = useState(false)
   const [badResult, setBadResult] = useState(false)
+  const [queryName, setQueryName] = useState('')
 
 const onSubmit = e => {
 
@@ -63,12 +65,39 @@ const onSubmit = e => {
       snowStorm.snowColor = '#fff';
       // 2. To optimize, define the max number of flakes that can
       // be shown on screen at once
-      snowStorm.flakesMaxActive = 64;
+      snowStorm.flakesMaxActive = 32;
       // 3. Allow the snow to flicker in and out of the view
       snowStorm.useTwinkleEffect = true; 
       // 4. Start the snowstorm!
       snowStorm.start();
-  })
+
+      return () => {
+        snowStorm.stop()
+      }
+  }, [])
+
+  if (!name) {
+    return (
+      <div className={styles.container}>
+              <Head>
+        <title>SSEcret Santa</title>
+        <script type="text/javascript" src="/static/snowstorm.js"></script>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <h1>
+          Welcome to the SSE BL Secret Santa!
+        </h1>
+        <p>Enter your name to continue</p>
+        <input className={styles.input} onChange={e => {
+            setQueryName(e.target.value)
+            }} value={queryName} />
+        <Link href={`/?name=${queryName}`}>
+          <a style={{display: 'flex', justifyContent: 'center', alignItems: 'center', width: '200px'}} className={styles.button}>Unwrap it!</a>
+        </Link>
+        <Santa width={300} />
+      </div>
+    )
+  }
 
   return (
     <div className={styles.container}>
@@ -84,11 +113,11 @@ const onSubmit = e => {
         </h1>
         {badResult ? <p className={styles.secretText}>No, no, no, that was really NAUGHTY of you, trying to hack the secret santa!!! Now please enter the right code!</p> : <p className={styles.secretText}>Please enter your <i>secret</i> code to find out for whom you are the <i>Secret</i> Santa</p>}
         <form onSubmit={onSubmit} className={styles.form}>
-          <input onChange={e => {
+          <input className={styles.input} onChange={e => {
             setCode(e.target.value)
             setBadResult(false)
             }} value={code} />
-          <button type="submit">Show me the mone... I mean, person!</button>
+          <button className={styles.button} type="submit">Show me the mone... I mean, person!</button>
         </form>
         <Santa width={300} />
         </main>)}
